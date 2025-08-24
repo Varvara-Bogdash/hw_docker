@@ -1,0 +1,24 @@
+# Используем официальный образ OpenJDK 8 с Alpine Linux (минимальный образ)
+FROM openjdk:8-jdk-alpine
+
+# Добавляем метаданные для образа
+LABEL maintainer="your-email@example.com"
+LABEL version="1.0"
+LABEL description="Authorization Service Spring Boot Application"
+
+# Устанавливаем рабочую директорию внутри контейнера
+WORKDIR /app
+
+# Копируем собранный JAR файл в контейнер
+# JAR должен быть собран предварительно командой: mvn clean package
+ADD target/authorization-service-0.0.1-SNAPSHOT.jar app.jar
+
+# Открываем порт, на котором работает Spring Boot приложение
+EXPOSE 8080
+
+# Указываем команду для запуска приложения
+# -Djava.security.egd=file:/dev/./urandom ускоряет запуск за счет использования неблокирующего источника энтропии
+ENTRYPOINT ["java", "-Djava.security.egd=file:/dev/./urandom", "-jar", "app.jar"]
+
+# Альтернативный вариант с указанием памяти (раскомментировать при необходимости)
+# ENTRYPOINT ["java", "-Xmx512m", "-Djava.security.egd=file:/dev/./urandom", "-jar", "app.jar"]

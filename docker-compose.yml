@@ -1,0 +1,42 @@
+version: '3.8'
+
+services:
+  authorization-service:
+    # Сборка образа из Dockerfile в текущей директории
+    build: ./
+
+    # Маппинг портов: хост:контейнер
+    ports:
+      - "8080:8080"
+
+    # Имя контейнера для удобства
+    container_name: auth-service-container
+
+    # Переменные окружения
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+      - JAVA_OPTS=-Xmx512m -Xms256m
+      - SERVER_PORT=8080
+
+    # Политика перезапуска: всегда перезапускать кроме случаев явной остановки
+    restart: unless-stopped
+
+    # Логирование
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+    # Здоровье контейнера (healthcheck)
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/actuator/health || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+# Сеть для контейнера (опционально)
+networks:
+  default:
+    driver: bridge
